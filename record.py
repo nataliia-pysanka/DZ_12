@@ -1,7 +1,9 @@
 """
 Module describes class Record with next parameters: name, list of phones
 """
+import json
 import datetime
+from typing import Union, List
 
 from field import Name, Phone, Birthday
 
@@ -16,11 +18,13 @@ class Record:
                  birthday: Birthday = None):
         self._numbers = []
         self._name = None
-        self.name = name
+        self._birthday = None
+        if name:
+            self.name = name
         if phone:
             self._numbers.append(phone)
         if birthday:
-            self._birthday = birthday
+            self.birthday = birthday
 
     @property
     def name(self):
@@ -32,7 +36,9 @@ class Record:
 
     @property
     def birthday(self):
-        return self._birthday.value
+        if self._birthday:
+            return self._birthday.value
+        return 'No data'
 
     @property
     def birthday_as_date_type(self):
@@ -128,17 +134,19 @@ class Record:
         print(f'\t No number {del_number} in the book')
         return False
 
+    def serealize(self):
+        dump = {'name': self.name}
+        if self.birthday:
+            dump.update({'birthday': self.birthday})
+        numbers = []
+        for number in self.numbers:
+            numbers.append(number.value)
+        dump.update({'numbers': numbers})
+        return dump
 
-name = 'Nataly'
-date_birth = '1986-08-27'
-phone = '0669127473'
-name = Name(name)
-phone = Name(phone)
-birth = Birthday(date_birth)
-rec = Record(name=name, phone=phone, birthday=birth)
-print(rec)
-rec.append_number(Phone('0996543212'))
-rec.append_number(Phone('0996543212'))
-rec.append_number(Phone('0996543212'))
-rec.append_number(Phone('0996543212'))
-print(rec)
+    def deserealize(self, record):
+        self.name = Name(record['name'])
+        self.birthday = Birthday(record['birthday'])
+        numbers = record['numbers']
+        for number in numbers:
+            self.append_number(Phone(number))

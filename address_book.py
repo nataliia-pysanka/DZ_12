@@ -1,9 +1,11 @@
-from time import sleep
+import json
 from collections import UserDict
 from record import Record
 
 
 class AddressBook(UserDict):
+    FILE_NAME = 'contacts.json'
+
     def __init__(self):
         super().__init__()
         self.counter = 0
@@ -16,19 +18,10 @@ class AddressBook(UserDict):
 
     def __str__(self):
         res = ''
-        for key in self.data:
-            res += f'{key}\n'
-
+        if len(self.data) > 1:
+            for key in self.data:
+                res += f'{key}\n'
         return res
-
-    # def __iter__(self):
-    #     for value in self.data.values():
-    #         yield value
-    #         self.counter += 1
-    #         if self.counter == 3:
-    #             input()
-    #             self.counter = 0
-    #     raise StopIteration
 
     def __iter__(self):
         return self
@@ -48,4 +41,23 @@ class AddressBook(UserDict):
         for rec, data in self.data.items():
             print(data)
 
+    def save(self):
+        dump = []
+        for key, record in self.data.items():
+            dump.append(record.serealize())
+        with open(self.FILE_NAME, 'w', encoding='UTF-8') as file:
+            json.dump(dump, file)
 
+    def load(self):
+        self.clear()
+        with open(self.FILE_NAME, 'r', encoding='UTF-8') as file:
+            dump = json.load(file)
+        for record in dump:
+            rec = Record('No name')
+            rec.deserealize(record)
+            self.add_record(rec)
+
+    def clear(self):
+        self.counter = 0
+        self.names = []
+        self.data = {}

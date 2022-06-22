@@ -23,7 +23,7 @@ class Name(Field):
     """
     Class Name
     """
-    def __init__(self, value):
+    def __init__(self, value='No name'):
         self._value = None
         self.edit(value)
 
